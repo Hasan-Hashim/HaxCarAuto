@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Login</h1>
+    </header>
+    <main>
+        <form id="login-form">
+            <label for="username">Username:</label>
+            <input type="text" id="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+            <button type="submit">Log In</button>
+        </form>
+        <div id="error-message"></div>
+    </main>
+    <script>
+        document.getElementById("login-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const data = {
+                username: document.getElementById("username").value,
+                password: document.getElementById("password").value,
+            };
+
+            fetch("/api/admin/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        window.location.href = "admin-products.html";
+                    } else {
+                        document.getElementById("error-message").innerText = "Invalid credentials.";
+                    }
+                })
+                .catch((error) => console.error("Login error:", error));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hax Auto Sales - Products</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <img src="images/haxlogo.webp" alt="Hax Auto Sales Logo">
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <h1>Our Products</h1>
+        <input type="text" id="search" placeholder="Search for products..." oninput="loadProducts(1)">
+        <div id="product-list" class="product-grid"></div>
+        <div id="pagination"></div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Hax Auto Sales. All rights reserved.</p>
+    </footer>
+
+    <script>
+        let currentPage = 1;
+
+        function loadProducts(page = 1) {
+            const search = document.getElementById("search").value;
+
+            fetch(`/api/products?page=${page}&search=${encodeURIComponent(search)}`)
+                .then((response) => response.json())
+                .then(({ products, total, page, limit }) => {
+                    const productList = document.getElementById("product-list");
+                    productList.innerHTML = "";
+
+                    products.forEach((product) => {
+                        const productCard = document.createElement("div");
+                        productCard.className = "product-card";
+                        productCard.innerHTML = `
+                            <img src="images/${product.image_url}" alt="${product.name}">
+                            <h2>${product.name}</h2>
+                            <p class="price">$${product.price}</p>
+                            <a href="details.html?id=${product.id}" class="details-link">View Details</a>
+                        `;
+                        productList.appendChild(productCard);
+                    });
+
+                    const pagination = document.getElementById("pagination");
+                    pagination.innerHTML = "";
+
+                    const totalPages = Math.ceil(total / limit);
+                    for (let i = 1; i <= totalPages; i++) {
+                        const pageLink = document.createElement("button");
+                        pageLink.innerText = i;
+                        pageLink.disabled = i === page;
+                        pageLink.addEventListener("click", () => loadProducts(i));
+                        pagination.appendChild(pageLink);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching products:", error);
+                });
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>

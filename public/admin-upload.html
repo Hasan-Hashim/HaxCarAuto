@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Bulk Upload</title>
+    <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <a href="admin-products.html">Manage Products</a>
+            <a href="/">Log Out</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Bulk Upload Products</h2>
+        <form id="upload-form" enctype="multipart/form-data">
+            <label for="file">Upload JSON File:</label>
+            <input type="file" id="file" name="file" accept=".json" required>
+            <button type="submit">Upload</button>
+        </form>
+
+        <div id="upload-status"></div>
+    </main>
+
+    <script>
+        document.getElementById("upload-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById("file");
+            formData.append("file", fileInput.files[0]);
+
+            fetch("/api/admin/upload", {
+                method: "POST",
+                body: formData,
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        document.getElementById("upload-status").innerText = "Upload successful!";
+                    } else {
+                        document.getElementById("upload-status").innerText = "Upload failed!";
+                    }
+                })
+                .catch((error) => {
+                    document.getElementById("upload-status").innerText = "Error uploading file.";
+                    console.error("Error:", error);
+                });
+        });
+    </script>
+</body>
+</html>

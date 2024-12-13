@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Products</title>
+    <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <a href="admin-upload.html">Bulk Upload</a>
+            <a href="/">Log Out</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Product Management</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="product-list">
+                <!-- Dynamic Content -->
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        function loadProducts() {
+            fetch("/api/admin/products")
+                .then((response) => response.json())
+                .then((products) => {
+                    const productList = document.getElementById("product-list");
+                    productList.innerHTML = "";
+
+                    products.forEach((product) => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                            <td>${product.id}</td>
+                            <td><input type="text" value="${product.name}" onchange="updateProduct(${product.id}, 'name', this.value)" /></td>
+                            <td><input type="text" value="${product.description}" onchange="updateProduct(${product.id}, 'description', this.value)" /></td>
+                            <td><input type="number" value="${product.price}" onchange="updateProduct(${product.id}, 'price', this.value)" /></td>
+                            <td><input type="number" value="${product.category_id}" onchange="updateProduct(${product.id}, 'category_id', this.value)" /></td>
+                            <td>
+                                <button onclick="deleteProduct(${product.id})">Delete</button>
+                            </td>
+                        `;
+
+                        productList.appendChild(row);
+                    });
+                })
+                .catch((error) => console.error("Error fetching products:", error));
+        }
+
+        function updateProduct(id, field, value) {
+            const data = { [field]: value };
+            fetch(`/api/admin/products/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            })
+                .then(() => loadProducts())
+                .catch((error) => console.error("Error updating product:", error));
+        }
+
+        function deleteProduct(id) {
+            fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+                .then(() => loadProducts())
+                .catch((error) => console.error("Error deleting product:", error));
+        }
+
+        // Load products on page load
+        loadProducts();
+    </script>
+</body>
+</html>
